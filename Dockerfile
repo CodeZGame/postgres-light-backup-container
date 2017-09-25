@@ -21,6 +21,4 @@ ADD ./bin ./bin
 
 RUN chmod -R 777 /opt/app-root/src
 
-USER 1001
-
 CMD ./bin/run.sh

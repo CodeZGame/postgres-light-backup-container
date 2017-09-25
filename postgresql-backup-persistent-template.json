@@ -27,7 +27,7 @@
         },
         "spec": {
             "tags": [{
-                "name": "${POSTGRESQL_VERSION}",
+                "name": "latest",
                 "annotations": {
                     "openshift.io/imported-from": "codezgame/postgres-light-backup-container:latest"
                 },
@@ -70,7 +70,7 @@
                     ],
                     "from": {
                         "kind": "ImageStreamTag",
-                        "name": "postgresql-simple-backup-container:${POSTGRESQL_VERSION}"
+                        "name": "postgresql-simple-backup-container:latest"
                     }
                 }
             }],
