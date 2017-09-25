@@ -29,11 +29,11 @@
             "tags": [{
                 "name": "${POSTGRESQL_VERSION}",
                 "annotations": {
-                    "openshift.io/imported-from": "codezgame/postgresql-simple-backup-container:latest"
+                    "openshift.io/imported-from": "codezgame/postgres-light-backup-container:latest"
                 },
                 "from": {
                     "kind": "DockerImage",
-                    "name": "codezgame/postgresql-simple-backup-container:latest"
+                    "name": "codezgame/postgres-light-backup-container:latest"
                 },
                 "generation": null,
                 "importPolicy": {}
@@ -101,7 +101,7 @@
                     }],
                     "containers": [{
                         "name": "postgresql-simple-backup-container",
-                        "image": "codezgame/postgresql-simple-backup-container:latest",
+                        "image": "codezgame/postgres-light-backup-container:latest",
                         "ports": [{
                             "containerPort": 5432,
                             "protocol": "TCP"
