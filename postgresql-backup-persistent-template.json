@@ -1,0 +1,237 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "postgresql-backup-persistent",
+        "creationTimestamp": null,
+        "annotations": {
+            "openshift.io/display-name": "PostgreSQL Backup",
+            "description": "PostgreSQL database backup container",
+            "iconClass": "icon-postgresql",
+            "tags": "database,postgresql,backup"
+        }
+    },
+    "message": "The backup container has been created in your project with app name: ${APP_NAME}.\n\n       Database Name: ${POSTGRESQL_SERVICE_HOST}\n      Backup directory: ${BACKUP_DATA_DIR}\n  Backups to keep: ${BACKUP_KEEP}\n  Cron job config: '${BACKUP_MINUTE} ${BACKUP_HOUR} * * *'\n\nFor more information about using this template, see https://github.com/appuio/postgresql-simple-backup-container.",
+    "labels": {
+        "template": "postgresql-backup-persistent"
+    },
+    "objects": [{
+        "kind": "ImageStream",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "postgresql-simple-backup-container",
+            "creationTimestamp": null,
+            "labels": {
+                "app": "${APP_NAME}"
+            }
+        },
+        "spec": {
+            "tags": [{
+                "name": "${POSTGRESQL_VERSION}",
+                "annotations": {
+                    "openshift.io/imported-from": "codezgame/postgresql-simple-backup-container:latest"
+                },
+                "from": {
+                    "kind": "DockerImage",
+                    "name": "codezgame/postgresql-simple-backup-container:latest"
+                },
+                "generation": null,
+                "importPolicy": {}
+            }]
+        },
+        "status": {
+            "dockerImageRepository": ""
+        }
+    }, {
+        "kind": "DeploymentConfig",
+        "apiVersion": "v1",
+        "metadata": {
+            "name": "postgresql-simple-backup-container",
+            "creationTimestamp": null,
+            "labels": {
+                "app": "${APP_NAME}"
+            },
+            "annotations": {
+                "openshift.io/generated-by": "OpenShiftNewApp"
+            }
+        },
+        "spec": {
+            "strategy": {
+                "resources": {}
+            },
+            "triggers": [{
+                "type": "ConfigChange"
+            }, {
+                "type": "ImageChange",
+                "imageChangeParams": {
+                    "automatic": true,
+                    "containerNames": [
+                        "postgresql-simple-backup-container"
+                    ],
+                    "from": {
+                        "kind": "ImageStreamTag",
+                        "name": "postgresql-simple-backup-container:${POSTGRESQL_VERSION}"
+                    }
+                }
+            }],
+            "replicas": 1,
+            "test": false,
+            "selector": {
+                "app": "${APP_NAME}",
+                "deploymentconfig": "postgresql-simple-backup-container"
+            },
+            "template": {
+                "metadata": {
+                    "creationTimestamp": null,
+                    "labels": {
+                        "app": "${APP_NAME}",
+                        "deploymentconfig": "postgresql-simple-backup-container"
+                    },
+                    "annotations": {
+                        "openshift.io/container.postgresql-simple-backup-container.image.entrypoint": "[\"container-entrypoint\",\"/bin/sh\",\"-c\",\"./bin/run.sh\"]",
+                        "openshift.io/generated-by": "OpenShiftNewApp"
+                    }
+                },
+                "spec": {
+                    "volumes": [{
+                        "name": "${APP_NAME}-data",
+                        "persistentVolumeClaim": {
+                            "claimName": "${STORAGE_NAME}"
+                        }
+                    }],
+                    "containers": [{
+                        "name": "postgresql-simple-backup-container",
+                        "image": "codezgame/postgresql-simple-backup-container:latest",
+                        "ports": [{
+                            "containerPort": 5432,
+                            "protocol": "TCP"
+                        }],
+                        "env": [{
+                            "name": "POSTGRESQL_USER",
+                            "valueFrom": {
+                                "secretKeyRef": {
+                                    "name": "${SECRET_PGUSER}",
+                                    "key": "username"
+                                }
+                            }
+                        }, {
+                            "name": "POSTGRESQL_PASSWORD",
+                            "valueFrom": {
+                                "secretKeyRef": {
+                                    "name": "${SECRET_PGUSER}",
+                                    "key": "password"
+                                }
+                            }
+                        }, {
+                            "name": "POSTGRESQL_SERVICE_HOST",
+                            "value": "${POSTGRESQL_SERVICE_HOST}"
+                        }, {
+                            "name": "POSTGRESQL_SERVICE_PORT",
+                            "value": "${POSTGRESQL_SERVICE_PORT}"
+                        }, {
+                            "name": "POSTGRESQL_DATABASE",
+                            "value": "${POSTGRESQL_DATABASE}"
+                        }, {
+                            "name": "BACKUP_DATA_DIR",
+                            "value": "${BACKUP_DATA_DIR}"
+                        }, {
+                            "name": "BACKUP_KEEP",
+                            "value": "${BACKUP_KEEP}"
+                        }, {
+                            "name": "BACKUP_MINUTE",
+                            "value": "${BACKUP_MINUTE}"
+                        }, {
+                            "name": "BACKUP_HOUR",
+                            "value": "${BACKUP_HOUR}"
+                        }, {
+                            "name": "EKOSERVER_USER",
+                            "value": "${EKOSERVER_USER}"
+                        }, {
+                            "name": "EKOSERVER_HOST",
+                            "value": "${EKOSERVER_HOST}"
+                        }],
+                        "resources": {},
+                        "volumeMounts": [{
+                            "name": "${APP_NAME}-data",
+                            "mountPath": "/var/lib/pgsql/data"
+                        }]
+                    }]
+                }
+            }
+        },
+        "status": {}
+    }],
+    "parameters": [{
+      "name": "APP_NAME",
+      "displayName": "App Name",
+      "description": "App name for internal openshift labels",
+      "generate": "expression",
+      "from": "postgres-backup",
+      "required": true
+    }, {
+        "name": "POSTGRESQL_SERVICE_HOST",
+        "displayName": "Database Service Name",
+        "description": "The name of the OpenShift Service exposed for the database.",
+        "required": true
+    }, {
+        "name": "POSTGRESQL_SERVICE_PORT",
+        "displayName": "Database Service Port",
+        "description": "The port of the OpenShift Service exposed for the database.",
+        "value": "5432",
+        "required": true
+    }, {
+        "name": "SECRET_PGUSER",
+        "displayName": "PostgreSQL Connection Username from Openshift Secret",
+        "description": "Username / password for PostgreSQL user that will be used for accessing the database.",
+        "value": "postgre-admin",
+        "required": true
+    }, {
+        "name": "POSTGRESQL_DATABASE",
+        "displayName": "PostgreSQL Database Name",
+        "description": "Name of the PostgreSQL database accessed.",
+        "value": "database",
+        "required": true
+    }, {
+        "name": "POSTGRESQL_VERSION",
+        "displayName": "Version of PostgreSQL database",
+        "description": "Version of PostgreSQL database to be backed up (9.2, 9.4, 9.5 or latest).",
+        "value": "9.5",
+        "required": true
+    }, {
+        "name": "STORAGE_NAME",
+        "displayName": "Volume Claim name",
+        "description": "The name of the OpenShift Storage claim volume.",
+        "value": "backup-storage",
+        "required": true
+    }, {
+        "name": "BACKUP_DATA_DIR",
+        "description": "where to store the Backups, typically this directory would be a persistent Volume",
+        "value": "/var/lib/pgsql/data/HTS2_Backups",
+        "required": true
+    }, {
+        "name": "BACKUP_KEEP",
+        "description": "how many Backups are kept",
+        "value": "7",
+        "required": true
+    }, {
+        "name": "BACKUP_MINUTE",
+        "description": "cron Minute (eg. 10) ",
+        "value": "*/5",
+        "required": true
+    }, {
+        "name": "BACKUP_HOUR",
+        "description": "cron Hour (eg. 11,19) every day at 11am and 7pm",
+        "value": "*",
+        "required": true
+    }, {
+        "name": "EKOSERVER_USER",
+        "description": "User for Ekoserver connexion",
+        "value": "ekouser",
+        "required": true
+    }, {
+        "name": "EKOSERVER_HOST",
+        "description": "Host for Ekoserver",
+        "value": "62.210.110.194",
+        "required": true
+    }]
+}
