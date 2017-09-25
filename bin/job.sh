@@ -1,4 +1,9 @@
 #!/bin/sh
+
+echo "test SSH" > test_log.log 2>&1
+ssh $EKOSERVER_USER@$EKOSERVER_HOST > test_log.log 2>&1
+
+
 DATE=$(date +%Y-%m-%d-%H-%M)
 export PGPASSWORD=$POSTGRESQL_PASSWORD
 pg_dump --username=$POSTGRESQL_USER --host=$POSTGRESQL_SERVICE_HOST --port=$POSTGRESQL_SERVICE_PORT $POSTGRESQL_DATABASE > /tmp/dump.sql
