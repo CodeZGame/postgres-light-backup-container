@@ -10,6 +10,7 @@ RUN yum -y install python \
     python-pip \
     mercurial \
     openssh-clients \
+    ed \
     yum clean all
 
 # Install dev cron
