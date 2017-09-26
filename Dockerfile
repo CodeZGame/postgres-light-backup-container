@@ -24,7 +24,7 @@ RUN rm -f /var/run/nologin
 
 RUN adduser --system -s /bin/bash -u 1234321 -g 0 backupuser # uid to replace later
 RUN chmod 775 /etc/ssh /home # keep writable for openshift user group (root)
-RUN chmod 660 /etc/ssh/sshd_config
+#RUN chmod 660 /etc/ssh/sshd_config
 RUN chmod 664 /etc/passwd /etc/group # to help uid fix
 RUN ln -s /home/backupuser /repos # nicer repo url
 
