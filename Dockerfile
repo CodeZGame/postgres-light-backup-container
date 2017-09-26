@@ -43,5 +43,4 @@ CMD echo -e ",s/1234321/`id -u`/g\\012 w" | ed -s /etc/passwd && \
     touch /home/backupuser/.ssh/authorized_keys && \
     chmod 700 /home/backupuser/.ssh && \
     chmod 600 /home/backupuser/.ssh/authorized_keys && \
-    exec /usr/sbin/sshd -D && \
     ./bin/run.sh
