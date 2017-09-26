@@ -30,12 +30,15 @@ if [ "$old_dumps" ]; then
 fi
 
 #Copy backup to EkoServ (rugby DB "proxy")
-scp -p -i /.eko_ssh/ssh-privatekey $BACKUP_DATA_DIR/dump-${DATE}.sql.gz $EKOSERVER_USER@$EKOSERVER_HOST:/home/ekouser/HTS2Backups/dump-${DATE}.sql.gz
+scp -p -i /.eko_ssh/ssh-privatekey -o StrictHostKeyChecking=no $BACKUP_DATA_DIR/dump-${DATE}.sql.gz $EKOSERVER_USER@$EKOSERVER_HOST:/home/ekouser/HTS2Backups/dump-${DATE}.sql.gz
 echo "[INFO] Backup sent to Eko server"
 
 #Remove backup older than 8 days on EkoServer (careful, directory cannot use env value)
-ssh -i /.eko_ssh/ssh-privatekey $EKOSERVER_USER@$EKOSERVER_HOST -o UserKnownHostsFile=.eko_ssh/known_hosts 'find ~/HTS2Backups/ -maxdepth 1 -type f -name "*.backup*" -mtime +7 -exec rm {} \;'
+ssh -i /.eko_ssh/ssh-privatekey $EKOSERVER_USER@$EKOSERVER_HOST -o StrictHostKeyChecking=no 'find ~/HTS2Backups/ -maxdepth 1 -type f -name "*.backup*" -mtime +7 -exec rm {} \;'
 echo "[INFO] Clean old backups on Eko server"
 
 
-scp -p -i /.eko_ssh/ssh-privatekey $BACKUP_DATA_DIR/dump-2017-09-26-13-20.sql.gz $EKOSERVER_USER@$EKOSERVER_HOST:/home/ekouser/HTS2Backups/dump-test.sql.gz
+#TESTS COMMANDS
+#scp -p -i /.eko_ssh/ssh-privatekey  $BACKUP_DATA_DIR/dump-2017-09-26-13-55.sql.gz $EKOSERVER_USER@$EKOSERVER_HOST:/home/ekouser/HTS2Backups/dump-test.sql.gz
+
+#ssh -i /.eko_ssh/ssh-privatekey -o StrictHostKeyChecking=no -o UserKnownHostsFile=.eko_ssh/known_hosts $EKOSERVER_USER@$EKOSERVER_HOST
