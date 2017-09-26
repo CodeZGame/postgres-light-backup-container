@@ -98,6 +98,11 @@
                         "persistentVolumeClaim": {
                             "claimName": "${STORAGE_NAME}"
                         }
+                    }, {
+                        "name": "secret-ssh",
+                        "secret": {
+                            "secretName": "key-eko-db-rugby"
+                        }
                     }],
                     "containers": [{
                         "name": "postgresql-simple-backup-container",
@@ -154,6 +159,9 @@
                         "volumeMounts": [{
                             "name": "${APP_NAME}-data",
                             "mountPath": "/var/lib/pgsql/data"
+                        }, {
+                            "name": "secret-ssh",
+                            "mountPath": "/.eko_ssh"
                         }]
                     }]
                 }
@@ -211,7 +219,7 @@
     }, {
         "name": "BACKUP_KEEP",
         "description": "how many Backups are kept",
-        "value": "7",
+        "value": "1",
         "required": true
     }, {
         "name": "BACKUP_MINUTE",

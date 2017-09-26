@@ -1,9 +1,5 @@
 #!/bin/sh
 
-echo "test SSH" > test_log.log 2>&1
-ssh $EKOSERVER_USER@$EKOSERVER_HOST > test_log.log 2>&1
-
-
 DATE=$(date +%Y-%m-%d-%H-%M)
 export PGPASSWORD=$POSTGRESQL_PASSWORD
 pg_dump --username=$POSTGRESQL_USER --host=$POSTGRESQL_SERVICE_HOST --port=$POSTGRESQL_SERVICE_PORT $POSTGRESQL_DATABASE > /tmp/dump.sql
@@ -34,9 +30,12 @@ if [ "$old_dumps" ]; then
 fi
 
 #Copy backup to EkoServ (rugby DB "proxy")
-#scp -p -i .eko_ssh/id_rsa $BACKUP_DATA_DIR/dump-${DATE}.sql.gz $EKOSERVER_USER@$EKOSERVER_HOST:/home/ekouser/HTS2Backups/$DB_BACKUP_FILE
+scp -p -i /.eko_ssh/ssh-privatekey $BACKUP_DATA_DIR/dump-${DATE}.sql.gz $EKOSERVER_USER@$EKOSERVER_HOST:/home/ekouser/HTS2Backups/dump-${DATE}.sql.gz
 echo "[INFO] Backup sent to Eko server"
 
 #Remove backup older than 8 days on EkoServer (careful, directory cannot use env value)
-#ssh -i .eko_ssh/id_rsa $EKOSERVER_USER@$EKOSERVER_HOST -o UserKnownHostsFile=.eko_ssh/known_hosts 'find ~/HTS2Backups/ -maxdepth 1 -type f -name "*.backup*" -mtime +7 -exec rm {} \;'
+ssh -i /.eko_ssh/ssh-privatekey $EKOSERVER_USER@$EKOSERVER_HOST -o UserKnownHostsFile=.eko_ssh/known_hosts 'find ~/HTS2Backups/ -maxdepth 1 -type f -name "*.backup*" -mtime +7 -exec rm {} \;'
 echo "[INFO] Clean old backups on Eko server"
+
+
+scp -p -i /.eko_ssh/ssh-privatekey $BACKUP_DATA_DIR/dump-2017-09-26-13-20.sql.gz $EKOSERVER_USER@$EKOSERVER_HOST:/home/ekouser/HTS2Backups/dump-test.sql.gz
