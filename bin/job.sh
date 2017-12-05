@@ -9,7 +9,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-gzip -c /tmp/dump.sql > $BACKUP_DATA_DIR/dump-${DATE}.sql.gz
+BACKUP_FILENAME=dump-${DATE}.sql.gz
+
+gzip -c /tmp/dump.sql > $BACKUP_DATA_DIR/$BACKUP_FILENAME
 
 BACKUP_CREATED=$?
 
@@ -30,7 +32,7 @@ if [ "$old_dumps" ]; then
 fi
 
 #Copy backup to EkoServ (rugby DB "proxy")
-scp -p -i /.eko_ssh/ssh-privatekey -o StrictHostKeyChecking=no $BACKUP_DATA_DIR/dump-${DATE}.sql.gz $EKOSERVER_USER@$EKOSERVER_HOST:/home/ekouser/HTS2Backups/dump-${DATE}.sql.gz
+scp -p -i /.eko_ssh/ssh-privatekey -o StrictHostKeyChecking=no $BACKUP_DATA_DIR/$BACKUP_FILENAME $EKOSERVER_USER@$EKOSERVER_HOST:/home/ekouser/HTS2Backups/$BACKUP_FILENAME
 echo "[INFO] Backup sent to Eko server"
 
 #Remove backup older than 8 days on EkoServer (careful, directory cannot use env value)

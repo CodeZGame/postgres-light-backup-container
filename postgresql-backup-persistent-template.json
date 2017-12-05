@@ -224,12 +224,12 @@
     }, {
         "name": "BACKUP_MINUTE",
         "description": "cron Minute (eg. 10) ",
-        "value": "*/5",
+        "value": "00",
         "required": true
     }, {
         "name": "BACKUP_HOUR",
         "description": "cron Hour (eg. 11,19) every day at 11am and 7pm",
-        "value": "*",
+        "value": "01",
         "required": true
     }, {
         "name": "EKOSERVER_USER",
